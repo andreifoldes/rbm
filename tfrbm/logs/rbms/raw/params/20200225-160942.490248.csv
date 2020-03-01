@@ -1,0 +1,2 @@
+Timestamp,rbmName,n_visible,n_hidden,learning_rate,momentum,xavier_const,err_function,init_weight_scheme,init_bias_scheme,stddev_par
+20200225-160942.490248,Perturbed REMERGE weight init,3,2,0.05,0,1.0,mse,perturbed remerge,zeros,0.1

@@ -12,7 +12,7 @@ import scipy.stats as sp
 import os
 from pathlib import Path
 
-path = os.getcwd() + '/logs/rbms/raw/params' + "/*.csv" # use your path
+path = os.getcwd() + '/tfrbm/logs/rbms/raw/params' + "/*.csv" # use your path
 path = Path(path)
 all_files = glob.glob(path.as_posix())
 
@@ -25,7 +25,7 @@ for filename in all_files:
 params = pd.concat(li, axis=0, ignore_index=True)
 params = params.convert_dtypes()
 
-path = os.getcwd() + '/logs/rbms/raw/vals' + "/*.csv" # use your path
+path = os.getcwd() + '/tfrbm/logs/rbms/raw/vals' + "/*.csv" # use your path
 path = Path(path)
 all_files = glob.glob(path.as_posix())
 
@@ -65,12 +65,16 @@ tmp4 = tmp4.set_index('Timestamp').join(params.set_index('Timestamp'))
 import seaborn as sns;
 import matplotlib.pyplot as plt
 
-sns.relplot(x="Epoch", y="Performance", hue="rbmName", row = "Val", col= "stddev_par", kind="line", data=tmp4[tmp4['n_visible']==4])
+sns.relplot(x="Epoch", y="Performance", hue="rbmName", row = "Val", col= "stddev_par", kind="line", data=tmp4[tmp4['n_visible']==5])
 
 #%% Plotting singular values
 
-path = r'C:\Users\folde\Desktop\iac\tensorfow-rbm-master\logs\rbms\raw\svd'
-all_files = glob.glob(path + "\*.csv")
+#path = r'C:\Users\folde\Desktop\iac\tensorfow-rbm-master\logs\rbms\raw\svd'
+#all_files = glob.glob(path + "\*.csv")
+
+path = os.getcwd() + '/tfrbm/logs/rbms/raw/svd' + "/*.csv" # use your path
+path = Path(path)
+all_files = glob.glob(path.as_posix())
 
 li = []
 
@@ -91,7 +95,7 @@ tmp = tmp.astype('float')
 tmp = tmp.add_prefix("a")
 
 svd_s = pd.concat([svd_s, tmp], axis=1)
-svd_s = svd_s.drop('s',axis = 1)
+svd_s = svd_s.drop('s', axis = 1)
 svd_s['Index'] = svd_s.index
 
 svd_s = pd.wide_to_long(svd_s, ["a"], i= "Index", j="Value")
@@ -104,3 +108,31 @@ import seaborn as sns;
 import matplotlib.pyplot as plt
 
 sns.relplot(x="Epoch", y="a", hue="rbmName", style="Value", col= "stddev_par", kind="line", data=svd_s)
+
+#%% Plotting REMERGE results
+
+path = os.getcwd() + '/tfrbm/logs/rbms/raw/weight' + "/*_weight.csv" # use your path
+path = Path(path)
+all_files = glob.glob(path.as_posix())
+
+li = []
+
+import ast
+import numpy as np
+def from_np_array(array_string):
+    array_string = ','.join(array_string.replace('[ ', '[').split())
+    try:
+        return np.array(ast.literal_eval(array_string))
+    except:
+        return float('NaN')
+
+for filename in all_files:
+    df = pd.read_csv(filename, index_col=None, header=0)
+    li.append(df)
+    
+weights = pd.concat(li, axis=0, ignore_index=True)
+weights['num'] = weights['num'].apply(from_np_array)
+
+weights_filtered = weights[weights['num'].notnull()]
+
+
